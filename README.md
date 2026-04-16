@@ -6,7 +6,7 @@ World of Warcraft 1.12.1 addon based on EquipColor that colors known recipes gre
 
 # 🔌 **Addon Compatibility**
 
-RecipeColors will detect and color known recipes on frames from the following addons:
+RecipeColor will detect and color known recipes on frames from the following addons:
 
 **AllInOneInventory**
 
