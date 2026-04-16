@@ -1,0 +1,8 @@
+## Title: |cff3fcf26Recipe|rColor
+## Interface: 11200
+## Version: 1.0
+## Notes: Colors known recipes green in bags, bank, mailbox & merchant frames.
+
+RecipeColor.lua
+RecipeColor.xml
+compatibility.lua
