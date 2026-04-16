@@ -7,11 +7,17 @@ World of Warcraft 1.12.1 addon based on EquipColor that colors known recipes gre
 RecipeColors will detect and color known recipes from the following addons:
 
 **AllInOneInventory**
+
 **Bagnon**
+
 **EngBags** & **EngInventory**
+
 **Guda**
+
 **OneBag**
+
 **pfUI**
+
 **SUCC-bag**
 
 # 👨‍💻 **Author**
