@@ -122,13 +122,23 @@ end
 function RecipeColor:ColorKnownRecipesInMail()
 	if not MailFrame:IsVisible() then return end
 	local numItems = GetInboxNumItems()
-	for i = 1, numItems do
+	local pageNum = InboxFrame.pageNum or 1
+	local startIndex = (pageNum - 1) * 7 + 1
+	for frameSlot = 1, 7 do
+		local icon = getglobal("MailItem" .. frameSlot .. "ButtonIcon")
+		if icon then icon:SetVertexColor(1, 1, 1) end
+	end
+	for frameSlot = 1, 7 do
+		local i = startIndex + (frameSlot - 1)
+		if i > numItems then break end
 		local _, _, _, _, canUse = GetInboxItem(i)
 		local _, _, _, _, _, _, _, hasItem = GetInboxHeaderInfo(i)
 		if canUse and hasItem and IsKnownRecipe("MailBox", i) then
-			local icon = getglobal("MailItem" .. i .. "ButtonIcon")
-			SetDesaturation(icon, nil)
-			icon:SetVertexColor(0, 1, 0)
+			local icon = getglobal("MailItem" .. frameSlot .. "ButtonIcon")
+			if icon then
+				SetDesaturation(icon, nil)
+				icon:SetVertexColor(0, 1, 0)
+			end
 		end
 	end
 end
@@ -217,6 +227,19 @@ local function RecipeColor_Initialize()
 		RecipeColor:ColorKnownRecipesAtMerchant()
 	end)
 
+	local origInbox = InboxFrame_Update
+	HookGlobal("InboxFrame_Update", function()
+		origInbox()
+		for i = 1, 7 do
+			local mailItem = getglobal("MailItem" .. i)
+			if mailItem then
+				mailItem:Hide()
+				mailItem:Show()
+			end
+		end
+		RecipeColor:ColorKnownRecipesInMail()
+	end)
+
 	-- Initialize compatibility hooks if the compatibility module is loaded.
 	if RecipeColor.InitCompat then
 		RecipeColor.InitCompat(IsKnownRecipe, GetFromLink, HookGlobal)
@@ -237,9 +260,7 @@ function RecipeColor_OnEvent(this, event, arg1)
 	end
 
 	-- Standard bag/bank/mail events.
-	if event == "MAIL_INBOX_UPDATE" then
-		RecipeColor:ColorKnownRecipesInMail()
-	elseif event == "BAG_UPDATE" or event == "ITEM_LOCK_CHANGED" or event == "BAG_UPDATE_COOLDOWN"
+	if event == "BAG_UPDATE" or event == "ITEM_LOCK_CHANGED" or event == "BAG_UPDATE_COOLDOWN"
 			or event == "UPDATE_INVENTORY_ALERTS" then
 		if RecipeColor.BagFrames and RecipeColor.BagFrames[1]
 				and RecipeColor.BagFrames[1].bagsShown > 0 then
@@ -276,5 +297,4 @@ function RecipeColor_OnLoad()
 	this:RegisterEvent("UPDATE_INVENTORY_ALERTS")
 	this:RegisterEvent("BANKFRAME_OPENED")
 	this:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
-	this:RegisterEvent("MAIL_INBOX_UPDATE")
 end
