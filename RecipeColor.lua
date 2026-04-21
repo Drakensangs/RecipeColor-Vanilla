@@ -143,6 +143,109 @@ function RecipeColor:ColorKnownRecipesInMail()
 	end
 end
 
+function RecipeColor:ColorKnownRecipesInOpenMail()
+	if not OpenMailFrame:IsVisible() then return end
+	local mailID = InboxFrame.openMailID
+	if not mailID or mailID == 0 then return end
+	SetItemButtonTextureVertexColor(OpenMailPackageButton, 1, 1, 1)
+	local name = GetInboxItem(mailID)
+	if not name then return end
+	RecipeColor_ScanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+	RecipeColor_ScanTooltip:ClearLines()
+	RecipeColor_ScanTooltip:SetInboxItem(mailID)
+	for i = 1, table.getn(ScanTooltipLines) do
+		local text = ScanTooltipLines[i]:GetText()
+		if text and string.find(text, "Already known") then
+			SetItemButtonTextureVertexColor(OpenMailPackageButton, 0, 1, 0)
+			return
+		end
+	end
+end
+
+-- Colors known recipes green in the loot frame.
+function RecipeColor:ColorKnownRecipesInLoot()
+	if not LootFrame:IsVisible() then return end
+	for i = 1, LOOTFRAME_NUMBUTTONS do
+		local button = getglobal("LootButton" .. i)
+		if button then
+			SetItemButtonTextureVertexColor(button, 1, 1, 1)
+		end
+	end
+	for i = 1, LOOTFRAME_NUMBUTTONS do
+		local button = getglobal("LootButton" .. i)
+		if button and button:IsVisible() and button.slot then
+			local slot = button.slot
+			if LootSlotIsItem(slot) then
+				local link = GetLootSlotLink(slot)
+				if link then
+					local itemid = GetFromLink(link)
+					if itemid ~= -1 then
+						local _, _, _, _, itemclass = GetItemInfo(itemid)
+						if itemclass == "Recipe" then
+							RecipeColor_ScanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+							RecipeColor_ScanTooltip:ClearLines()
+							RecipeColor_ScanTooltip:SetLootItem(slot)
+							for j = 1, table.getn(ScanTooltipLines) do
+								local text = ScanTooltipLines[j]:GetText()
+								if text and string.find(text, "Already known") then
+									SetItemButtonTextureVertexColor(button, 0, 1, 0)
+									break
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-- Colors known recipes green in the trade frame.
+function RecipeColor:ColorKnownRecipesInTrade()
+	if not TradeFrame:IsVisible() then return end
+	for id = 1, MAX_TRADE_ITEMS do
+		local playerButton = getglobal("TradePlayerItem" .. id .. "ItemButton")
+		if playerButton then
+			SetItemButtonTextureVertexColor(playerButton, 1, 1, 1)
+		end
+		local recipientButton = getglobal("TradeRecipientItem" .. id .. "ItemButton")
+		if recipientButton then
+			SetItemButtonTextureVertexColor(recipientButton, 1, 1, 1)
+		end
+	end
+	for id = 1, MAX_TRADE_ITEMS do
+		local playerButton = getglobal("TradePlayerItem" .. id .. "ItemButton")
+		if playerButton and playerButton.hasItem then
+			RecipeColor_ScanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+			RecipeColor_ScanTooltip:ClearLines()
+			RecipeColor_ScanTooltip:SetTradePlayerItem(id)
+			for i = 1, table.getn(ScanTooltipLines) do
+				local text = ScanTooltipLines[i]:GetText()
+				if text and string.find(text, "Already known") then
+					SetItemButtonTextureVertexColor(playerButton, 0, 1, 0)
+					break
+				end
+			end
+		end
+		local recipientButton = getglobal("TradeRecipientItem" .. id .. "ItemButton")
+		if recipientButton then
+			local name = GetTradeTargetItemInfo(id)
+			if name then
+				RecipeColor_ScanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+				RecipeColor_ScanTooltip:ClearLines()
+				RecipeColor_ScanTooltip:SetTradeTargetItem(id)
+				for i = 1, table.getn(ScanTooltipLines) do
+					local text = ScanTooltipLines[i]:GetText()
+					if text and string.find(text, "Already known") then
+						SetItemButtonTextureVertexColor(recipientButton, 0, 1, 0)
+						break
+					end
+				end
+			end
+		end
+	end
+end
+
 -- Colors known recipes green at the merchant.
 function RecipeColor:ColorKnownRecipesAtMerchant()
 	if not MerchantFrame:IsVisible() then return end
@@ -227,6 +330,36 @@ local function RecipeColor_Initialize()
 		RecipeColor:ColorKnownRecipesAtMerchant()
 	end)
 
+	local origOpenMail = OpenMail_Update
+	HookGlobal("OpenMail_Update", function()
+		origOpenMail()
+		SetItemButtonTextureVertexColor(OpenMailPackageButton, 1, 1, 1)
+	end)
+
+	local origTrade = TradeFrame_Update
+	HookGlobal("TradeFrame_Update", function()
+		origTrade()
+		RecipeColor:ColorKnownRecipesInTrade()
+	end)
+
+	local origTradePlayer = TradeFrame_UpdatePlayerItem
+	HookGlobal("TradeFrame_UpdatePlayerItem", function(id)
+		origTradePlayer(id)
+		RecipeColor:ColorKnownRecipesInTrade()
+	end)
+
+	local origTradeTarget = TradeFrame_UpdateTargetItem
+	HookGlobal("TradeFrame_UpdateTargetItem", function(id)
+		origTradeTarget(id)
+		RecipeColor:ColorKnownRecipesInTrade()
+	end)
+
+	local origLoot = LootFrame_Update
+	HookGlobal("LootFrame_Update", function()
+		origLoot()
+		RecipeColor:ColorKnownRecipesInLoot()
+	end)
+
 	local origInbox = InboxFrame_Update
 	HookGlobal("InboxFrame_Update", function()
 		origInbox()
@@ -238,6 +371,7 @@ local function RecipeColor_Initialize()
 			end
 		end
 		RecipeColor:ColorKnownRecipesInMail()
+		RecipeColor:ColorKnownRecipesInOpenMail()
 	end)
 
 	-- Initialize compatibility hooks if the compatibility module is loaded.
