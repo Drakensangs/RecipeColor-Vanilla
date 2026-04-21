@@ -2,7 +2,11 @@
 
 World of Warcraft 1.12.1 addon based on EquipColor that colors known recipes green in the bag, bank, mailbox and merchant frames.
 
+<img width="255" height="348" alt="loot" src="https://github.com/user-attachments/assets/a0608889-8d2e-4f7d-ba1f-baf020140a6d" />
 <img width="263" height="247" alt="blizzard" src="https://github.com/user-attachments/assets/2987cc63-3f70-44cf-8624-cacfceee82e7" />
+<img width="498" height="630" alt="inbox" src="https://github.com/user-attachments/assets/a999ab3e-96ac-41d4-a48e-35993f20abce" />
+<img width="511" height="667" alt="trade" src="https://github.com/user-attachments/assets/cda804a1-8f15-4c15-846a-db9fddcfc90a" />
+
 
 # 🔌 **Addon Compatibility**
 
@@ -37,6 +41,7 @@ RecipeColor will detect and color known recipes on frames from the following add
 **pfUI**
 
 <img width="351" height="230" alt="pfui" src="https://github.com/user-attachments/assets/7b8f7464-14ca-4356-92ea-802ed0d790ae" />
+<img width="311" height="342" alt="pfuiloot" src="https://github.com/user-attachments/assets/5ce20a20-528e-4aaf-a08f-a750a72aa2b5" />
 
 \
 **SUCC-bag**
