@@ -1,6 +1,6 @@
 # 📜 **RecipeColor** (Vanilla 1.12.1)
 
-World of Warcraft 1.12.1 addon based on EquipColor that colors known recipes green in the bag, bank, mailbox and merchant frames.
+World of Warcraft 1.12.1 addon based on EquipColor that colors known recipes green in the bag, bank, mailbox, inbox, trade, loot and merchant frames.
 
 <img width="255" height="348" alt="loot" src="https://github.com/user-attachments/assets/a0608889-8d2e-4f7d-ba1f-baf020140a6d" />
 <img width="263" height="247" alt="blizzard" src="https://github.com/user-attachments/assets/2987cc63-3f70-44cf-8624-cacfceee82e7" />
