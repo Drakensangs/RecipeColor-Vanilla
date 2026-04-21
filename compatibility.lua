@@ -227,7 +227,53 @@ function RecipeColor.InitCompat(isKnownRecipeFn, getFromLinkFn, hookGlobalFn)
 		end)
 	end
 
-	-- pfUI
+	-- pfUI loot frame
+	if isPfUI and pfUI and pfUI.loot then
+		local function PfUIColorLootSlots()
+			if not pfUI.loot or not pfUI.loot.slots then return end
+			for _, slot in pairs(pfUI.loot.slots) do
+				if slot and slot:IsShown() and slot.icon then
+					slot.icon:SetVertexColor(1, 1, 1)
+				end
+			end
+			for _, slot in pairs(pfUI.loot.slots) do
+				if slot and slot:IsShown() and slot.icon then
+					local lootSlot = slot:GetID()
+					if lootSlot and lootSlot > 0 and LootSlotIsItem(lootSlot) then
+						local link = GetLootSlotLink(lootSlot)
+						if link then
+							local itemid = GetFromLink(link)
+							if itemid ~= -1 then
+								local _, _, _, _, itemclass = GetItemInfo(itemid)
+								if itemclass == "Recipe" then
+									RecipeColor_ScanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+									RecipeColor_ScanTooltip:ClearLines()
+									RecipeColor_ScanTooltip:SetLootItem(lootSlot)
+									for i = 1, 30 do
+										local line = getglobal("RecipeColor_ScanTooltipTextLeft" .. i)
+										if not line then break end
+										local text = line:GetText()
+										if text and string.find(text, "Already known") then
+											slot.icon:SetVertexColor(0, 1, 0)
+											break
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		local origUpdateLootFrame = pfUI.loot.UpdateLootFrame
+		pfUI.loot.UpdateLootFrame = function(self)
+			origUpdateLootFrame(self)
+			PfUIColorLootSlots()
+		end
+	end
+
+	-- pfUI bag frame
 	if isPfUI and pfUI and pfUI.bag then
 		local function PfUIColorSlot(bag, slot)
 			if not pfUI.bags[bag] then return end
