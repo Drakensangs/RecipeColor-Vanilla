@@ -1,6 +1,6 @@
 ## Title: |cff3fcf26Recipe|rColor
 ## Interface: 11200
-## Version: 1.2
+## Version: 1.3
 ## Notes: Colors known recipes green in bags, bank, mailbox, inbox, trade, loot & merchant frames.
 
 RecipeColor.lua
