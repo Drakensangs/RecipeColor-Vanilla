@@ -46,11 +46,14 @@ local function IsKnownRecipe(bag, slot)
 		RecipeColor_ScanTooltip:SetInboxItem(slot)
 	elseif bag == "Merchant" then
 		RecipeColor_ScanTooltip:SetMerchantItem(slot)
+	elseif bag == "Buyback" then
+		RecipeColor_ScanTooltip:SetBuybackItem(slot)
 	else
 		RecipeColor_ScanTooltip:SetBagItem(bag, slot)
 	end
-	for i = 1, table.getn(ScanTooltipLines) do
-		local text = ScanTooltipLines[i]:GetText()
+	local numLines = RecipeColor_ScanTooltip:NumLines()
+	for i = 1, numLines do
+		local text = ScanTooltipLines[i] and ScanTooltipLines[i]:GetText()
 		if text and string.find(text, "Already known") then
 			return true
 		end
@@ -265,6 +268,47 @@ function RecipeColor:ColorKnownRecipesAtMerchant()
 	end
 end
 
+local BUYBACK_ITEMS_PER_PAGE = 12
+
+local rcGreenBuybackButtons = {}
+local rcGreenBuybackSlot = false
+
+-- Colors known recipes green in the buyback tab.
+function RecipeColor:ColorKnownRecipesInBuybackTab()
+	if not MerchantFrame:IsVisible() then return end
+	for btn in pairs(rcGreenBuybackButtons) do
+		SetItemButtonTextureVertexColor(btn, 1, 1, 1)
+	end
+	rcGreenBuybackButtons = {}
+	local numBuyback = GetNumBuybackItems()
+	for i = 1, BUYBACK_ITEMS_PER_PAGE do
+		local itemButton = getglobal("MerchantItem" .. i .. "ItemButton")
+		local merchantButton = getglobal("MerchantItem" .. i)
+		if itemButton and i <= numBuyback and GetBuybackItemInfo(i) and IsKnownRecipe("Buyback", i) then
+			SetItemButtonNameFrameVertexColor(merchantButton, 0, 1, 0)
+			SetItemButtonSlotVertexColor(merchantButton, 0, 1, 0)
+			SetItemButtonTextureVertexColor(itemButton, 0, 1, 0)
+			SetItemButtonNormalTextureVertexColor(itemButton, 0, 1, 0)
+			rcGreenBuybackButtons[itemButton] = true
+		end
+	end
+end
+
+function RecipeColor:ColorKnownRecipesInBuybackSlot()
+	if not MerchantFrame:IsVisible() then return end
+	local bbButton = getglobal("MerchantBuyBackItemItemButton")
+	if not bbButton then return end
+	if rcGreenBuybackSlot then
+		SetItemButtonTextureVertexColor(bbButton, 1, 1, 1)
+		rcGreenBuybackSlot = false
+	end
+	local bbIndex = GetNumBuybackItems()
+	if bbIndex > 0 and GetBuybackItemInfo(bbIndex) and IsKnownRecipe("Buyback", bbIndex) then
+		SetItemButtonTextureVertexColor(bbButton, 0, 1, 0)
+		rcGreenBuybackSlot = true
+	end
+end
+
 -- Builds an OnShow closure for a ContainerFrame bag.
 local function MakeBagOnShow(frame)
 	local orig = frame:GetScript("OnShow")
@@ -327,7 +371,12 @@ local function RecipeColor_Initialize()
 	local orig = MerchantFrame_Update
 	HookGlobal("MerchantFrame_Update", function()
 		orig()
-		RecipeColor:ColorKnownRecipesAtMerchant()
+		if MerchantFrame.selectedTab == 2 then
+			RecipeColor:ColorKnownRecipesInBuybackTab()
+		else
+			RecipeColor:ColorKnownRecipesAtMerchant()
+			RecipeColor:ColorKnownRecipesInBuybackSlot()
+		end
 	end)
 
 	local origOpenMail = OpenMail_Update
