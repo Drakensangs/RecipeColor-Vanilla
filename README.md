@@ -48,5 +48,10 @@ RecipeColor will detect and color known recipes on frames from the following add
 
 <img width="430" height="276" alt="succ-bag" src="https://github.com/user-attachments/assets/dceff291-af3f-4023-8bcb-bff225e96323" />
 
+\
+**XLoot**
+
+<img width="458" height="569" alt="recipecolorxloot" src="https://github.com/user-attachments/assets/b85d6fc3-5533-4fc7-9a8a-df54cb721194" />
+
 # 👨‍💻 **Author**
 Drakensangs
