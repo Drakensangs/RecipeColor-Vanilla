@@ -8,6 +8,52 @@ local isEngBags  = false
 local isAllInOne = false
 local isSUCCbag  = false
 local isPfUI     = false
+local isXLoot    = false
+
+local xlootHookInstalled = false
+function RecipeColor.InstallXLootHook()
+	if xlootHookInstalled then return end
+	if not XLoot or not XLoot.Update then return end
+	xlootHookInstalled = true
+
+	local origXLootUpdate = XLoot.Update
+	XLoot.Update = function(self)
+		origXLootUpdate(self)
+		for _, button in pairs(self.buttons) do
+			if button and button:IsShown() then
+				SetItemButtonTextureVertexColor(button, 1, 1, 1)
+			end
+		end
+		for _, button in pairs(self.buttons) do
+			if button and button:IsShown() and button.slot then
+				local slot = button.slot
+				if LootSlotIsItem(slot) then
+					local link = GetLootSlotLink(slot)
+					if link then
+						local itemid = GetFromLink(link)
+						if itemid ~= -1 then
+							local _, _, _, _, itemclass = GetItemInfo(itemid)
+							if itemclass == "Recipe" then
+								RecipeColor_ScanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+								RecipeColor_ScanTooltip:ClearLines()
+								RecipeColor_ScanTooltip:SetLootItem(slot)
+								for i = 1, 30 do
+									local line = getglobal("RecipeColor_ScanTooltipTextLeft" .. i)
+									if not line then break end
+									local text = line:GetText()
+									if text and string.find(text, "Already known") then
+										SetItemButtonTextureVertexColor(button, 0, 1, 0)
+										break
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
 
 function RecipeColor.InitCompat(isKnownRecipeFn, getFromLinkFn, hookGlobalFn)
 	IsKnownRecipe = isKnownRecipeFn
@@ -19,6 +65,7 @@ function RecipeColor.InitCompat(isKnownRecipeFn, getFromLinkFn, hookGlobalFn)
 	isEngBags  = IsAddOnLoaded("EngInventory") or IsAddOnLoaded("EngBags")
 	isAllInOne = IsAddOnLoaded("AllInOneInventory")
 	isPfUI     = IsAddOnLoaded("pfUI")
+	isXLoot    = IsAddOnLoaded("XLoot")
 
 	-- Bagnon
 	if isBagnon then
@@ -368,6 +415,10 @@ function RecipeColor.InitCompat(isKnownRecipeFn, getFromLinkFn, hookGlobalFn)
 		end
 	end
 
+	if isXLoot then
+		RecipeColor.InstallXLootHook()
+	end
+
 	-- guda
 	if Guda_ItemButton_SetItem then
 		local origGuda = Guda_ItemButton_SetItem
@@ -495,6 +546,11 @@ function RecipeColor.OnCompatEvent(event, arg1)
 		end)
 
 		RecipeColor.SUCCTicker = succTicker
+	end
+
+	if event == "ADDON_LOADED" and arg1 == "XLoot" then
+		isXLoot = true
+		RecipeColor.InstallXLootHook()
 	end
 
 	if isSUCCbag and RecipeColor.SUCCTicker then
