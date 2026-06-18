@@ -28,6 +28,11 @@ RecipeColor will detect and color known recipes on frames from the following add
 <img width="418" height="154" alt="engbags" src="https://github.com/user-attachments/assets/237aa642-e33a-4a4f-8228-46fddc06605d" />
 
 \
+**Extended Vendor UI**
+
+<img width="1035" height="729" alt="RecipeColorExtVendCompatibility" src="https://github.com/user-attachments/assets/5a451c1c-9786-485f-8692-cbd7d1bde8f2" />
+
+\
 **Guda**
 
 <img width="437" height="341" alt="guda" src="https://github.com/user-attachments/assets/296a09c6-e716-43bc-b658-2170701592a1" />
