@@ -419,6 +419,43 @@ function RecipeColor.InitCompat(isKnownRecipeFn, getFromLinkFn, hookGlobalFn)
 		RecipeColor.InstallXLootHook()
 	end
 
+	-- ExtVendor compatibility.
+	if IsAddOnLoaded("ExtVendor") then
+		local evCompatFrame = CreateFrame("Frame")
+		evCompatFrame:RegisterEvent("VARIABLES_LOADED")
+		evCompatFrame:SetScript("OnEvent", function()
+			local function EV_ColorMerchantSlots()
+				if not MerchantFrame:IsVisible() then return end
+				for i = 1, MERCHANT_ITEMS_PER_PAGE do
+					local itemButton     = getglobal("MerchantItem" .. i .. "ItemButton")
+					local merchantButton = getglobal("MerchantItem" .. i)
+					if itemButton and merchantButton then
+						local idx = itemButton:GetID()
+						if idx and idx > 0 and itemButton:IsShown() then
+							if IsKnownRecipe("Merchant", idx) then
+								SetItemButtonNameFrameVertexColor(merchantButton, 0, 1, 0)
+								SetItemButtonSlotVertexColor(merchantButton, 0, 1, 0)
+								SetItemButtonTextureVertexColor(itemButton, 0, 1, 0)
+								SetItemButtonNormalTextureVertexColor(itemButton, 0, 1, 0)
+							end
+						end
+					end
+				end
+			end
+
+			local origUpdateDisplay = ExtVendor_UpdateDisplay
+			ExtVendor_UpdateDisplay = function()
+				origUpdateDisplay()
+				if MerchantFrame.selectedTab == 2 then
+					RecipeColor:ColorKnownRecipesInBuybackTab()
+				else
+					EV_ColorMerchantSlots()
+					RecipeColor:ColorKnownRecipesInBuybackSlot()
+				end
+			end
+		end)
+	end
+
 	-- guda
 	if Guda_ItemButton_SetItem then
 		local origGuda = Guda_ItemButton_SetItem
